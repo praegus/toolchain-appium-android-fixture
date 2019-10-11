@@ -1,30 +1,31 @@
 package nl.praegus.fitnesse.slim.util;
 
+import io.appium.java_client.android.nativekey.AndroidKey;
 import nl.hsac.fitnesse.fixture.slim.SlimFixtureException;
 
-import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
 public class KeyMapping {
 
+    private static Map<String, AndroidKey> keyMap = new HashMap<>();
+
+    static {
+        keyMap.put("home", AndroidKey.HOME);
+        keyMap.put("back", AndroidKey.BACK);
+        keyMap.put("menu", AndroidKey.MENU);
+        keyMap.put("enter", AndroidKey.NUMPAD_ENTER);
+    }
+
     private KeyMapping() {
         // constructor is private cause everything is static
     }
 
-    private static Map<String, Integer> keyMap = new HashMap<>();
-
-    static {
-        keyMap.put("control", KeyEvent.VK_CONTROL);
-        keyMap.put("v", KeyEvent.VK_V);
-    }
-
-    public static Integer getKey(String key) {
-        Integer keyStoke = keyMap.get(key.toLowerCase().trim());
-
-        if (keyStoke != null) {
-            return keyStoke;
+    public static AndroidKey getKey(String key) {
+        AndroidKey keyStroke = keyMap.get(key.toLowerCase().trim());
+        if (keyStroke != null) {
+            return keyStroke;
         }
-        throw new SlimFixtureException("Key: " + key + " does not exist or is not supported yet");
+        throw new SlimFixtureException("Key: " + key + " does not exist or is not supported yet.");
     }
 }

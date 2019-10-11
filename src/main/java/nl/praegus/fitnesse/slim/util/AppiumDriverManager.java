@@ -28,12 +28,8 @@ public class AppiumDriverManager extends DriverManager {
     @Override
     protected SeleniumHelper createHelper(WebDriver driver) {
         SeleniumHelper helper;
-        if (driver instanceof IOSDriver) {
-            helper = createHelperForIos();
-        } else if (driver instanceof AndroidDriver) {
+        if (driver instanceof AndroidDriver) {
             helper = createHelperForAndroid();
-        } else if (driver instanceof WindowsDriver) {
-            helper = createHelperForWindows();
         } else {
             helper = super.createHelper(driver);
         }
@@ -59,16 +55,8 @@ public class AppiumDriverManager extends DriverManager {
         return new MobileElementConverter(d, d);
     }
 
-    protected SeleniumHelper createHelperForIos() {
-        return new IosHelper();
-    }
-
     protected SeleniumHelper createHelperForAndroid() {
         return new AndroidHelper();
-    }
-
-    protected SeleniumHelper createHelperForWindows() {
-        return new WindowsHelper();
     }
 
     protected WebElement selectBestElement(List<WebElement> elements) {

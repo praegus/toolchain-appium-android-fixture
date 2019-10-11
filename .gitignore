@@ -1,4 +1,4 @@
+/toolchain-appium-android-fixture.iml
+/.idea/
 
-.idea/
-
-toolchain-appium-android-fixture.iml
+target/

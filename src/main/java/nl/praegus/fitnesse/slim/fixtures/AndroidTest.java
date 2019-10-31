@@ -1,6 +1,7 @@
 package nl.praegus.fitnesse.slim.fixtures;
 
 import fitnesse.slim.fixtureInteraction.FixtureInteraction;
+import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
@@ -55,6 +56,7 @@ import static nl.hsac.fitnesse.fixture.util.selenium.SelectHelper.isSelect;
 /**
  * Specialized class to test Android applications using Appium.
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class AndroidTest extends SlimFixture {
     private final List<String> currentSearchContextPath = new ArrayList<>();
     private AndroidHelper androidHelper;
@@ -110,13 +112,13 @@ public class AndroidTest extends SlimFixture {
         return tap(place, container);
     }
 
-    protected boolean tap(String place, String container) {
+    private boolean tap(String place, String container) {
         TouchAction touchAction = new TouchAction(getAndroidHelper().driver());
-        WebElement element = getElementToClick(cleanupValue(place), container);
+        AndroidElement element = getElementToClick(cleanupValue(place), container);
         return tapElement(touchAction, element);
     }
 
-    protected boolean tapElement(TouchAction touchAction, WebElement element) {
+    private boolean tapElement(TouchAction touchAction, AndroidElement element) {
         return doIfInteractable(element, () -> touchAction.tap(tapOptions().withElement(element(element))).perform());
     }
 
@@ -127,18 +129,18 @@ public class AndroidTest extends SlimFixture {
         return swipe(pointFrom, pointTo);
     }
 
-    protected PointOption getPointFromString(String coordinates) {
+    private PointOption getPointFromString(String coordinates) {
         String[] coordinatesList = coordinates.split(",");
         return PointOption.point(Integer.parseInt(coordinatesList[0]), Integer.parseInt(coordinatesList[1]));
     }
 
-    protected boolean swipe(PointOption from, PointOption to) {
+    private boolean swipe(PointOption from, PointOption to) {
         TouchAction action = new TouchAction(getAndroidHelper().driver());
         action.longPress(from).moveTo(to).release().perform();
         return true;
     }
 
-    protected List<String> getCurrentSearchContextPath() {
+    private List<String> getCurrentSearchContextPath() {
         return currentSearchContextPath;
     }
 
@@ -174,11 +176,11 @@ public class AndroidTest extends SlimFixture {
         return savePageSource(fileName, fileName + ".xml");
     }
 
-    protected AndroidDriver<AndroidElement> getDriver() {
+    private AndroidDriver<AndroidElement> getDriver() {
         return androidHelper.driver();
     }
 
-    protected boolean clear(WebElement element) {
+    protected boolean clear(AndroidElement element) {
         if (element != null) {
             element.clear();
             return true;
@@ -215,7 +217,7 @@ public class AndroidTest extends SlimFixture {
         }
     }
 
-    protected Object invokedWrappedInWaitUntil(WaitUntil waitUntil, FixtureInteraction interaction, Method method, Object[] arguments) {
+    private Object invokedWrappedInWaitUntil(WaitUntil waitUntil, FixtureInteraction interaction, Method method, Object[] arguments) {
         ExpectedCondition<Object> condition = webDriver -> {
             try {
                 return super.invoke(interaction, method, arguments);
@@ -353,11 +355,11 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected boolean enter(String value, String place, String container, boolean shouldClear) {
-        WebElement element = getElement(place, container);
+        AndroidElement element = getElement(place, container);
         return enter(element, value, shouldClear);
     }
 
-    protected boolean enter(WebElement element, String value, boolean shouldClear) {
+    protected boolean enter(AndroidElement element, String value, boolean shouldClear) {
         boolean result = element != null && androidHelper.isInteractable(element);
         if (result) {
             if (isSelect(element)) {
@@ -376,7 +378,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil
     public boolean enterDateAs(String date, String place) {
-        WebElement element = getElementToSendValue(place);
+        AndroidElement element = getElementToSendValue(place);
         boolean result = element != null && androidHelper.isInteractable(element);
         if (result) {
             androidHelper.fillDateInput(element, date);
@@ -451,7 +453,7 @@ public class AndroidTest extends SlimFixture {
         return sendKeysToActiveElement(s);
     }
 
-    protected CharSequence parseKey(String key) {
+    private CharSequence parseKey(String key) {
         CharSequence s;
         try {
             s = Keys.valueOf(key.toUpperCase());
@@ -470,9 +472,9 @@ public class AndroidTest extends SlimFixture {
      * @param keys keys to press.
      * @return true, if an element was active the keys could be sent to.
      */
-    protected boolean sendKeysToActiveElement(CharSequence... keys) {
+    private boolean sendKeysToActiveElement(CharSequence... keys) {
         boolean result = false;
-        WebElement element = androidHelper.getActiveElement();
+        AndroidElement element = androidHelper.getActiveElement();
         if (element != null) {
             element.sendKeys(keys);
             result = true;
@@ -486,7 +488,7 @@ public class AndroidTest extends SlimFixture {
      * @param element element to call sendKeys() on.
      * @param value   cell content.
      */
-    protected void sendValue(WebElement element, String value) {
+    protected void sendValue(AndroidElement element, String value) {
         if (StringUtils.isNotEmpty(value)) {
             String keys = cleanupValue(value);
             element.sendKeys(keys);
@@ -495,7 +497,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil
     public boolean selectAs(String value, String place) {
-        WebElement element = androidHelper.getElement(place);
+        AndroidElement element = androidHelper.getElement(place);
         Select select = new Select(element);
         if (select.isMultiple()) {
             select.deselectAll();
@@ -510,7 +512,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil
     public boolean selectFor(String value, String place) {
-        WebElement element = androidHelper.getElement(place);
+        AndroidElement element = androidHelper.getElement(place);
         return clickSelectOption(element, value);
     }
 
@@ -524,17 +526,17 @@ public class AndroidTest extends SlimFixture {
         return androidHelper.setHiddenInputValue(idOrName, value);
     }
 
-    protected boolean clickSelectOption(WebElement element, String optionValue) {
+    protected boolean clickSelectOption(AndroidElement element, String optionValue) {
         if (element != null && isSelect(element)) {
             optionValue = cleanupValue(optionValue);
             By optionBy = new OptionBy(optionValue);
-            WebElement option = element.findElement(optionBy);
+            AndroidElement option = (AndroidElement) element.findElement(optionBy);
             return clickSelectOption(element, option);
         }
         return false;
     }
 
-    protected boolean clickSelectOption(WebElement element, WebElement option) {
+    private boolean clickSelectOption(AndroidElement element, AndroidElement option) {
         boolean result = false;
         if (option != null) {
             // we scroll containing select into view (not the option)
@@ -568,8 +570,8 @@ public class AndroidTest extends SlimFixture {
         return click(place, null);
     }
 
-    protected boolean click(String place, String container) {
-        WebElement element = getElementToClick(cleanupValue(place), container);
+    private boolean click(String place, String container) {
+        AndroidElement element = getElementToClick(cleanupValue(place), container);
         return clickElement(element);
     }
 
@@ -580,11 +582,11 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil
     public boolean doubleClickIn(String place, String container) {
-        WebElement element = getElementToClick(cleanupValue(place), container);
+        AndroidElement element = getElementToClick(cleanupValue(place), container);
         return doubleClick(element);
     }
 
-    protected boolean doubleClick(WebElement element) {
+    private boolean doubleClick(AndroidElement element) {
         return doIfInteractable(element, () -> androidHelper.doubleClick(element));
     }
 
@@ -596,14 +598,14 @@ public class AndroidTest extends SlimFixture {
         return sendCommandForControlOnMac;
     }
 
-    protected Keys controlKey() {
+    private Keys controlKey() {
         return sendCommandForControlOnMac ? androidHelper.getControlOrCommand() : Keys.CONTROL;
     }
 
     @WaitUntil
     public boolean dragAndDropTo(String source, String destination) {
-        WebElement sourceElement = androidHelper.getElementToClick(cleanupValue(source));
-        WebElement destinationElement = androidHelper.getElementToClick(cleanupValue(destination));
+        AndroidElement sourceElement = androidHelper.getElementToClick(cleanupValue(source));
+        AndroidElement destinationElement = androidHelper.getElementToClick(cleanupValue(destination));
 
         if ((sourceElement != null) && (destinationElement != null)) {
             scrollIfNotOnScreen(sourceElement);
@@ -615,7 +617,7 @@ public class AndroidTest extends SlimFixture {
         return false;
     }
 
-    protected AndroidElement getElementToClick(String place, String container) {
+    private AndroidElement getElementToClick(String place, String container) {
         return doInContainer(container, () -> androidHelper.getElementToClick(place));
     }
 
@@ -627,11 +629,11 @@ public class AndroidTest extends SlimFixture {
      * @param suppliers suppliers that will be used in turn until an element is found, IF place is not a technical selector.
      * @return first hit of place, technical selector or result of first supplier that provided result.
      */
-    protected AndroidElement findFirstInContainer(String container, String place, Supplier<? extends AndroidElement>... suppliers) {
+    private AndroidElement findFirstInContainer(String container, String place, Supplier<? extends AndroidElement>... suppliers) {
         return doInContainer(container, () -> androidHelper.findByTechnicalSelectorOr(place, suppliers));
     }
 
-    protected <R> R doInContainer(String container, Supplier<R> action) {
+    private <R> R doInContainer(String container, Supplier<R> action) {
         if (container == null) {
             return action.get();
         } else {
@@ -639,7 +641,7 @@ public class AndroidTest extends SlimFixture {
         }
     }
 
-    protected <R> R doInContainer(Supplier<AndroidElement> containerSupplier, Supplier<R> action) {
+    private <R> R doInContainer(Supplier<AndroidElement> containerSupplier, Supplier<R> action) {
         R result = null;
         int retryCount = minStaleContextRefreshCount;
         do {
@@ -663,7 +665,7 @@ public class AndroidTest extends SlimFixture {
     @WaitUntil
     public boolean setSearchContextTo(String container) {
         container = cleanupValue(container);
-        WebElement containerElement = getContainerElement(container);
+        AndroidElement containerElement = getContainerElement(container);
         boolean result = false;
         if (containerElement != null) {
             getCurrentSearchContextPath().add(container);
@@ -678,15 +680,15 @@ public class AndroidTest extends SlimFixture {
         androidHelper.setCurrentContext(null);
     }
 
-    protected AndroidElement getContainerElement(String container) {
+    private AndroidElement getContainerElement(String container) {
         return findByTechnicalSelectorOr(container, container1 -> androidHelper.getElement(container1));
     }
 
-    protected boolean clickElement(WebElement element) {
+    private boolean clickElement(AndroidElement element) {
         return doIfInteractable(element, () -> element.click());
     }
 
-    protected boolean doIfInteractable(WebElement element, Runnable action) {
+    private boolean doIfInteractable(AndroidElement element, Runnable action) {
         boolean result = false;
         if (element != null) {
             scrollIfNotOnScreen(element);
@@ -711,14 +713,14 @@ public class AndroidTest extends SlimFixture {
         return waitForElementWithText(By.className(cssClassName), expectedText);
     }
 
-    protected boolean waitForElementWithText(By by, String expectedText) {
+    private boolean waitForElementWithText(By by, String expectedText) {
         String textToLookFor = cleanExpectedValue(expectedText);
         return waitUntilOrStop(webDriver -> {
             boolean ok = false;
 
-            List<WebElement> elements = webDriver.findElements(by);
+            List<AndroidElement> elements = webDriver.findElements(by);
             if (elements != null) {
-                for (WebElement element : elements) {
+                for (AndroidElement element : elements) {
                     // we don't want stale elements to make single
                     // element false, but instead we stop processing
                     // current list and do a new findElements
@@ -733,11 +735,11 @@ public class AndroidTest extends SlimFixture {
         });
     }
 
-    protected String cleanExpectedValue(String expectedText) {
+    private String cleanExpectedValue(String expectedText) {
         return cleanupValue(expectedText);
     }
 
-    protected boolean hasText(WebElement element, String textToLookFor) {
+    private boolean hasText(AndroidElement element, String textToLookFor) {
         boolean ok;
         String actual = getElementText(element);
         if (textToLookFor == null) {
@@ -761,7 +763,7 @@ public class AndroidTest extends SlimFixture {
     public boolean waitForClass(String cssClassName) {
         boolean ok = false;
 
-        WebElement element = androidHelper.findElement(By.className(cssClassName));
+        AndroidElement element = androidHelper.findElement(By.className(cssClassName));
         if (element != null) {
             ok = true;
         }
@@ -775,7 +777,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil(TimeoutPolicy.STOP_TEST)
     public boolean waitForVisibleIn(String place, String container) {
-        WebElement element = getElementToCheckVisibility(place, container);
+        AndroidElement element = getElementToCheckVisibility(place, container);
         if (element != null) {
             scrollIfNotOnScreen(element);
             return element.isDisplayed();
@@ -800,7 +802,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil(TimeoutPolicy.RETURN_NULL)
     public String valueForIn(String place, String container) {
-        WebElement element = getElement(place, container);
+        AndroidElement element = getElement(place, container);
         return valueFor(element);
     }
 
@@ -825,7 +827,7 @@ public class AndroidTest extends SlimFixture {
         return normalizeValue(value);
     }
 
-    protected List<String> normalizeValues(List<String> values) {
+    private List<String> normalizeValues(List<String> values) {
         if (values != null) {
             for (int i = 0; i < values.size(); i++) {
                 String value = values.get(i);
@@ -836,7 +838,7 @@ public class AndroidTest extends SlimFixture {
         return values;
     }
 
-    protected String normalizeValue(String value) {
+    private String normalizeValue(String value) {
         String text = XPathBy.getNormalizedText(value);
         if (text != null && trimOnNormalize) {
             text = text.trim();
@@ -856,11 +858,11 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil
     public String targetOfLink(String place) {
-        WebElement linkElement = androidHelper.getLink(place);
+        AndroidElement linkElement = androidHelper.getLink(place);
         return getLinkTarget(linkElement);
     }
 
-    protected String getLinkTarget(WebElement linkElement) {
+    private String getLinkTarget(AndroidElement linkElement) {
         String target = null;
         if (linkElement != null) {
             target = linkElement.getAttribute("href");
@@ -879,23 +881,23 @@ public class AndroidTest extends SlimFixture {
     @WaitUntil(TimeoutPolicy.RETURN_NULL)
     public String valueOfAttributeOnIn(String attribute, String place, String container) {
         String result = null;
-        WebElement element = getElement(place, container);
+        AndroidElement element = getElement(place, container);
         if (element != null) {
             result = element.getAttribute(attribute);
         }
         return result;
     }
 
-    protected String valueFor(By by) {
-        WebElement element = androidHelper.findElement(by);
+    private String valueFor(By by) {
+        AndroidElement element = androidHelper.findElement(by);
         return valueFor(element);
     }
 
-    protected String valueFor(WebElement element) {
+    private String valueFor(AndroidElement element) {
         String result = null;
         if (element != null) {
             if (isSelect(element)) {
-                WebElement selected = getFirstSelectedOption(element);
+                AndroidElement selected = getFirstSelectedOption(element);
                 result = getElementText(selected);
             } else {
                 String elementType = element.getAttribute("type");
@@ -914,12 +916,12 @@ public class AndroidTest extends SlimFixture {
         return result;
     }
 
-    protected WebElement getFirstSelectedOption(WebElement selectElement) {
+    private AndroidElement getFirstSelectedOption(AndroidElement selectElement) {
         SelectHelper s = new SelectHelper(selectElement);
-        return s.getFirstSelectedOption();
+        return (AndroidElement) s.getFirstSelectedOption();
     }
 
-    protected List<WebElement> getSelectedOptions(WebElement selectElement) {
+    private List<WebElement> getSelectedOptions(AndroidElement selectElement) {
         SelectHelper s = new SelectHelper(selectElement);
         return s.getAllSelectedOptions();
     }
@@ -941,7 +943,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil(TimeoutPolicy.RETURN_NULL)
     public List<String> valuesForIn(String place, String container) {
-        WebElement element = getElement(place, container);
+        AndroidElement element = getElement(place, container);
         if (element == null) {
             return emptyList();
         } else if ("ul".equalsIgnoreCase(element.getTagName()) || "ol".equalsIgnoreCase(element.getTagName())) {
@@ -953,22 +955,22 @@ public class AndroidTest extends SlimFixture {
         }
     }
 
-    private List<String> getValuesFromList(WebElement element) {
+    private List<String> getValuesFromList(AndroidElement element) {
         ArrayList<String> values = new ArrayList<>();
-        List<WebElement> items = element.findElements(By.tagName("li"));
-        for (WebElement item : items) {
+        List<MobileElement> items = element.findElements(By.tagName("li"));
+        for (MobileElement item : items) {
             if (item.isDisplayed()) {
-                values.add(getElementText(item));
+                values.add(getElementText((AndroidElement) item));
             }
         }
         return values;
     }
 
-    private List<String> getValuesFromSelect(WebElement element) {
+    private List<String> getValuesFromSelect(AndroidElement element) {
         ArrayList<String> values = new ArrayList<>();
         List<WebElement> options = getSelectedOptions(element);
         for (WebElement item : options) {
-            values.add(getElementText(item));
+            values.add(getElementText((AndroidElement) item));
         }
         return values;
     }
@@ -997,7 +999,7 @@ public class AndroidTest extends SlimFixture {
     @WaitUntil(TimeoutPolicy.RETURN_NULL)
     public Integer numberFor(String place) {
         Integer number = null;
-        WebElement element = androidHelper.findElement(ListItemBy.numbered(place));
+        AndroidElement element = androidHelper.findElement(ListItemBy.numbered(place));
         if (element != null) {
             scrollIfNotOnScreen(element);
             number = androidHelper.getNumberFor(element);
@@ -1013,7 +1015,7 @@ public class AndroidTest extends SlimFixture {
     @WaitUntil(TimeoutPolicy.RETURN_NULL)
     public List<String> availableOptionsFor(String place) {
         ArrayList<String> result = null;
-        WebElement element = androidHelper.getElement(place);
+        AndroidElement element = androidHelper.getElement(place);
         if (element != null) {
             scrollIfNotOnScreen(element);
             result = androidHelper.getAvailableOptions(element);
@@ -1033,7 +1035,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil
     public boolean clearIn(String place, String container) {
-        WebElement element = getElement(place, container);
+        AndroidElement element = getElement(place, container);
         if (element != null) {
             return clear(element);
         }
@@ -1043,7 +1045,7 @@ public class AndroidTest extends SlimFixture {
     @WaitUntil
     public boolean enterAsInRowWhereIs(String value, String requestedColumnName, String selectOnColumn, String selectOnValue) {
         By cellBy = GridBy.columnInRowWhereIs(requestedColumnName, selectOnColumn, selectOnValue);
-        WebElement element = androidHelper.findElement(cellBy);
+        AndroidElement element = androidHelper.findElement(cellBy);
         return enter(element, value, true);
     }
 
@@ -1097,32 +1099,32 @@ public class AndroidTest extends SlimFixture {
         return clickInRow(rowBy, place);
     }
 
-    protected boolean clickInRow(By rowBy, String place) {
+    private boolean clickInRow(By rowBy, String place) {
         return Boolean.TRUE.equals(doInContainer(() -> androidHelper.findElement(rowBy), () -> click(place)));
     }
 
-    protected AndroidElement getElement(String place, String container) {
+    private AndroidElement getElement(String place, String container) {
         return doInContainer(container, () -> androidHelper.getElement(place));
     }
 
-    protected String getTextByClassName(String className) {
-        WebElement element = findByClassName(className);
+    private String getTextByClassName(String className) {
+        AndroidElement element = findByClassName(className);
         return getElementText(element);
     }
 
-    protected AndroidElement findByClassName(String className) {
+    private AndroidElement findByClassName(String className) {
         return androidHelper.findElement(By.className(className));
     }
 
-    protected AndroidElement findByCss(String cssPattern, String... params) {
+    private AndroidElement findByCss(String cssPattern, String... params) {
         return androidHelper.findElement(androidHelper.byCss(cssPattern, params));
     }
 
-    protected List<AndroidElement> findAllByXPath(String xpathPattern, String... params) {
+    private List<AndroidElement> findAllByXPath(String xpathPattern, String... params) {
         return findElements(androidHelper.byXpath(xpathPattern, params));
     }
 
-    protected List<AndroidElement> findAllByCss(String cssPattern, String... params) {
+    private List<AndroidElement> findAllByCss(String cssPattern, String... params) {
         return findElements(androidHelper.byCss(cssPattern, params));
     }
 
@@ -1130,11 +1132,11 @@ public class AndroidTest extends SlimFixture {
         waitAfterScroll = msToWait;
     }
 
-    protected int getWaitAfterScroll() {
+    private int getWaitAfterScroll() {
         return waitAfterScroll;
     }
 
-    protected String getElementText(WebElement element) {
+    private String getElementText(AndroidElement element) {
         if (element != null) {
             scrollIfNotOnScreen(element);
             return androidHelper.getText(element);
@@ -1193,7 +1195,7 @@ public class AndroidTest extends SlimFixture {
      *
      * @param element element to scroll to.
      */
-    protected void scrollTo(WebElement element) {
+    protected void scrollTo(AndroidElement element) {
         androidHelper.scrollTo(element);
         waitAfterScroll(waitAfterScroll);
     }
@@ -1203,7 +1205,7 @@ public class AndroidTest extends SlimFixture {
      *
      * @param msToWait amount of ms to wait after the scroll
      */
-    protected void waitAfterScroll(int msToWait) {
+    private void waitAfterScroll(int msToWait) {
         if (msToWait > 0) {
             waitMilliseconds(msToWait);
         }
@@ -1214,7 +1216,7 @@ public class AndroidTest extends SlimFixture {
      *
      * @param element element to scroll to.
      */
-    protected void scrollIfNotOnScreen(WebElement element) {
+    private void scrollIfNotOnScreen(AndroidElement element) {
         if (!element.isDisplayed()) {
             scrollTo(element);
         }
@@ -1347,8 +1349,8 @@ public class AndroidTest extends SlimFixture {
         return !isVisibleImpl(place, container, false);
     }
 
-    protected boolean isVisibleImpl(String place, String container, boolean checkOnScreen) {
-        WebElement element = getElementToCheckVisibility(place, container);
+    private boolean isVisibleImpl(String place, String container, boolean checkOnScreen) {
+        AndroidElement element = getElementToCheckVisibility(place, container);
         return androidHelper.checkVisible(element, checkOnScreen);
     }
 
@@ -1370,7 +1372,7 @@ public class AndroidTest extends SlimFixture {
         return number == null ? 0 : number;
     }
 
-    protected int numberOfTimesIsVisibleInImpl(String text, boolean checkOnScreen) {
+    private int numberOfTimesIsVisibleInImpl(String text, boolean checkOnScreen) {
         if (implicitFindInFrames) {
             // sum over iframes
             AtomicInteger count = new AtomicInteger();
@@ -1381,7 +1383,7 @@ public class AndroidTest extends SlimFixture {
         }
     }
 
-    protected AndroidElement getElementToCheckVisibility(String place, String container) {
+    private AndroidElement getElementToCheckVisibility(String place, String container) {
         return doInContainer(container, () -> findByTechnicalSelectorOr(place, place1 -> androidHelper.getElementToCheckVisibility(place1)));
     }
 
@@ -1392,11 +1394,11 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil
     public boolean hoverOverIn(String place, String container) {
-        WebElement element = getElementToClick(place, container);
+        AndroidElement element = getElementToClick(place, container);
         return hoverOver(element);
     }
 
-    protected boolean hoverOver(WebElement element) {
+    private boolean hoverOver(AndroidElement element) {
         if (element != null) {
             scrollIfNotOnScreen(element);
             if (element.isDisplayed()) {
@@ -1465,7 +1467,7 @@ public class AndroidTest extends SlimFixture {
         return getEnvironment().getHtml(androidHelper.getSourceXml());
     }
 
-    protected String savePageSource(String fileName, String linkText) {
+    private String savePageSource(String fileName, String linkText) {
         PageSourceSaver saver = androidHelper.getPageSourceSaver(pageSourceBase);
         // make href to file
         String url = saver.savePageSource(fileName);
@@ -1535,7 +1537,7 @@ public class AndroidTest extends SlimFixture {
      * @return result of condition.
      * @throws SlimFixtureException if condition was not met before secondsBeforeTimeout.
      */
-    protected <T> T waitUntil(ExpectedCondition<T> condition) {
+    private <T> T waitUntil(ExpectedCondition<T> condition) {
         try {
             return waitUntilImpl(condition);
         } catch (TimeoutException e) {
@@ -1554,7 +1556,7 @@ public class AndroidTest extends SlimFixture {
      * @return result of condition.
      * @throws TimeoutStopTestException if condition was not met before secondsBeforeTimeout.
      */
-    protected <T> T waitUntilOrStop(ExpectedCondition<T> condition) {
+    private <T> T waitUntilOrStop(ExpectedCondition<T> condition) {
         try {
             return waitUntilImpl(condition);
         } catch (TimeoutException e) {
@@ -1577,7 +1579,7 @@ public class AndroidTest extends SlimFixture {
      * @return last attempt results, if not null or false.
      * @throws SlimFixtureException throws e if last attempt returns null.
      */
-    protected <T> T lastAttemptBeforeThrow(ExpectedCondition<T> condition, SlimFixtureException e) {
+    private <T> T lastAttemptBeforeThrow(ExpectedCondition<T> condition, SlimFixtureException e) {
         T lastAttemptResult = null;
         try {
             // last attempt to ensure condition has not been met
@@ -1601,7 +1603,7 @@ public class AndroidTest extends SlimFixture {
      * @param condition condition to evaluate to determine whether waiting can be stopped.
      * @return result of condition.
      */
-    protected <T> T waitUntilOrNull(ExpectedCondition<T> condition) {
+    private <T> T waitUntilOrNull(ExpectedCondition<T> condition) {
         try {
             return waitUntilImpl(condition);
         } catch (TimeoutException e) {
@@ -1609,7 +1611,7 @@ public class AndroidTest extends SlimFixture {
         }
     }
 
-    protected <T> T waitUntilImpl(ExpectedCondition<T> condition) {
+    private <T> T waitUntilImpl(ExpectedCondition<T> condition) {
         return androidHelper.waitUntil(secondsBeforeTimeout, condition);
     }
 
@@ -1619,7 +1621,7 @@ public class AndroidTest extends SlimFixture {
         return refreshSearchContext(fullPath, Math.min(fullPath.size(), minStaleContextRefreshCount));
     }
 
-    protected boolean refreshSearchContext(List<String> fullPath, int maxRetries) {
+    private boolean refreshSearchContext(List<String> fullPath, int maxRetries) {
         clearSearchContext();
         for (String container : fullPath) {
             try {
@@ -1640,7 +1642,7 @@ public class AndroidTest extends SlimFixture {
         return true;
     }
 
-    protected <T> T handleTimeoutException(TimeoutException e) {
+    private <T> T handleTimeoutException(TimeoutException e) {
         String message = getTimeoutMessage(e);
         throw new TimeoutStopTestException(false, message, e);
     }
@@ -1650,22 +1652,22 @@ public class AndroidTest extends SlimFixture {
         return getSlimFixtureExceptionMessage("timeouts", "timeout", messageBase, e);
     }
 
-    protected void handleRequiredElementNotFound(String toFind) {
+    private void handleRequiredElementNotFound(String toFind) {
         handleRequiredElementNotFound(toFind, null);
     }
 
-    protected void handleRequiredElementNotFound(String toFind, Throwable t) {
+    private void handleRequiredElementNotFound(String toFind, Throwable t) {
         String messageBase = String.format("Unable to find: %s", toFind);
         String message = getSlimFixtureExceptionMessage("notFound", toFind, messageBase, t);
         throw new SlimFixtureException(false, message, t);
     }
 
-    protected String getSlimFixtureExceptionMessage(String screenshotFolder, String screenshotFile, String messageBase, Throwable t) {
+    private String getSlimFixtureExceptionMessage(String screenshotFolder, String screenshotFile, String messageBase, Throwable t) {
         String screenshotBaseName = String.format("%s/%s/%s", screenshotFolder, getClass().getSimpleName(), screenshotFile);
         return getSlimFixtureExceptionMessage(screenshotBaseName, messageBase, t);
     }
 
-    protected String getSlimFixtureExceptionMessage(String screenshotBaseName, String messageBase, Throwable t) {
+    private String getSlimFixtureExceptionMessage(String screenshotBaseName, String messageBase, Throwable t) {
         String exceptionMsg = getExceptionMessageText(messageBase, t);
         // take a screenshot of what was on screen
         String screenshotTag = getExceptionScreenshotTag(screenshotBaseName, messageBase, t);
@@ -1674,7 +1676,7 @@ public class AndroidTest extends SlimFixture {
         return String.format("<div><div>%s.</div><div>%s:%s</div></div>", exceptionMsg, label, screenshotTag);
     }
 
-    protected String getExceptionMessageText(String messageBase, Throwable t) {
+    private String getExceptionMessageText(String messageBase, Throwable t) {
         String message = messageBase;
         if (message == null) {
             if (t == null) {
@@ -1686,7 +1688,7 @@ public class AndroidTest extends SlimFixture {
         return formatExceptionMsg(message);
     }
 
-    protected String getExceptionScreenshotTag(String screenshotBaseName, String messageBase, Throwable t) {
+    private String getExceptionScreenshotTag(String screenshotBaseName, String messageBase, Throwable t) {
         String screenshotTag = "(Screenshot not available)";
         try {
             String screenShotFile = createScreenshot(screenshotBaseName, t);
@@ -1701,7 +1703,7 @@ public class AndroidTest extends SlimFixture {
         return screenshotTag;
     }
 
-    protected String getExceptionPageSourceTag(String screenshotBaseName, String messageBase, Throwable t) {
+    private String getExceptionPageSourceTag(String screenshotBaseName, String messageBase, Throwable t) {
         String label = "Page content";
         try {
             String fileName;
@@ -1722,14 +1724,14 @@ public class AndroidTest extends SlimFixture {
         return label;
     }
 
-    protected String formatExceptionMsg(String value) {
+    private String formatExceptionMsg(String value) {
         return StringEscapeUtils.escapeHtml4(value);
     }
 
     /**
      * @return helper to use.
      */
-    protected AndroidHelper getAndroidHelper() {
+    private AndroidHelper getAndroidHelper() {
         return androidHelper;
     }
 
@@ -1738,11 +1740,11 @@ public class AndroidTest extends SlimFixture {
      *
      * @param helper helper to use.
      */
-    protected void setAndroidHelper(AndroidHelper helper) {
+    private void setAndroidHelper(AndroidHelper helper) {
         androidHelper = helper;
     }
 
-    protected WebElement getElementToDownload(String place) {
+    private AndroidElement getElementToDownload(String place) {
         SeleniumHelper<AndroidElement> helper = androidHelper;
         return helper.findByTechnicalSelectorOr(place,
                 () -> helper.getLink(place),
@@ -1750,11 +1752,11 @@ public class AndroidTest extends SlimFixture {
                 () -> helper.findElement(AltBy.partial(place)));
     }
 
-    protected List<AndroidElement> findElements(By by) {
+    private List<AndroidElement> findElements(By by) {
         return androidHelper.findElements(by);
     }
 
-    public AndroidElement findByTechnicalSelectorOr(String place, Function<String, ? extends AndroidElement> supplierF) {
+    public AndroidElement findByTechnicalSelectorOr(String place, Function<String, AndroidElement> supplierF) {
         return androidHelper.findByTechnicalSelectorOr(place, () -> supplierF.apply(place));
     }
 
@@ -1795,7 +1797,7 @@ public class AndroidTest extends SlimFixture {
         if (fileName != null) {
             String fullPath = getFilePathFromWikiUrl(fileName);
             if (new File(fullPath).exists()) {
-                WebElement element = getElementToSelectFile(place, container);
+                AndroidElement element = getElementToSelectFile(place, container);
                 if (element != null) {
                     element.sendKeys(fullPath);
                     result = true;
@@ -1807,7 +1809,7 @@ public class AndroidTest extends SlimFixture {
         return result;
     }
 
-    protected AndroidElement getElementToSelectFile(String place, String container) {
+    private AndroidElement getElementToSelectFile(String place, String container) {
         AndroidElement result = null;
         AndroidElement element = getElement(place, container);
         if (element != null
@@ -1826,24 +1828,24 @@ public class AndroidTest extends SlimFixture {
         return repeatUntilNot(getClickUntilValueIs(clickPlace, checkPlace, expectedValue));
     }
 
-    protected RepeatCompletion getClickUntilValueIs(String clickPlace, String checkPlace, String expectedValue) {
+    private RepeatCompletion getClickUntilValueIs(String clickPlace, String checkPlace, String expectedValue) {
         String place = cleanupValue(clickPlace);
         return getClickUntilCompletion(place, checkPlace, expectedValue);
     }
 
-    protected RepeatCompletion getClickUntilCompletion(String place, String checkPlace, String expectedValue) {
+    private RepeatCompletion getClickUntilCompletion(String place, String checkPlace, String expectedValue) {
         return new ConditionBasedRepeatUntil(true, d -> click(place), d -> checkValueIs(checkPlace, expectedValue));
     }
 
-    protected boolean repeatUntil(ExpectedCondition<Object> actionCondition, ExpectedCondition<Boolean> finishCondition) {
+    private boolean repeatUntil(ExpectedCondition<Object> actionCondition, ExpectedCondition<Boolean> finishCondition) {
         return repeatUntil(new ConditionBasedRepeatUntil(true, actionCondition, finishCondition));
     }
 
-    protected boolean repeatUntilIsNot(ExpectedCondition<Object> actionCondition, ExpectedCondition<Boolean> finishCondition) {
+    private boolean repeatUntilIsNot(ExpectedCondition<Object> actionCondition, ExpectedCondition<Boolean> finishCondition) {
         return repeatUntilNot(new ConditionBasedRepeatUntil(true, actionCondition, finishCondition));
     }
 
-    protected <T> ExpectedCondition<T> wrapConditionForFramesIfNeeded(ExpectedCondition<T> condition) {
+    private <T> ExpectedCondition<T> wrapConditionForFramesIfNeeded(ExpectedCondition<T> condition) {
         if (implicitFindInFrames) {
             condition = androidHelper.conditionForAllFrames(condition);
         }
@@ -1868,7 +1870,7 @@ public class AndroidTest extends SlimFixture {
         }
     }
 
-    protected boolean checkValueIs(String place, String expectedValue) {
+    private boolean checkValueIs(String place, String expectedValue) {
         boolean match;
         String actual = valueOf(place);
         if (expectedValue == null) {
@@ -1946,7 +1948,7 @@ public class AndroidTest extends SlimFixture {
         this.trimOnNormalize = trimOnNormalize;
     }
 
-    protected class ConditionBasedRepeatUntil extends FunctionalCompletion {
+    private class ConditionBasedRepeatUntil extends FunctionalCompletion {
         public ConditionBasedRepeatUntil(boolean wrapIfNeeded,
                                          ExpectedCondition<?> repeatCondition,
                                          ExpectedCondition<Boolean> finishedCondition) {

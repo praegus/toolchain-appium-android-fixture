@@ -93,7 +93,17 @@ public class AndroidTest extends SlimFixture {
     }
 
     public boolean pressKey(String key) {
-        getAndroidHelper().driver().pressKey(new KeyEvent(KeyMapping.getKey(key)));
+        getDriver().pressKey(new KeyEvent(KeyMapping.getKey(key)));
+        return true;
+    }
+
+    public boolean launchApp() {
+        getDriver().launchApp();
+        return true;
+    }
+
+    public boolean closeApp() {
+        getDriver().closeApp();
         return true;
     }
 
@@ -112,9 +122,9 @@ public class AndroidTest extends SlimFixture {
         return tap(place, container);
     }
 
-    private boolean tap(String place, String container) {
-        TouchAction touchAction = new TouchAction(getAndroidHelper().driver());
-        AndroidElement element = getElementToClick(cleanupValue(place), container);
+    protected boolean tap(String place, String container) {
+        TouchAction touchAction = new TouchAction(getDriver());
+        WebElement element = getElementToClick(cleanupValue(place), container);
         return tapElement(touchAction, element);
     }
 
@@ -134,8 +144,8 @@ public class AndroidTest extends SlimFixture {
         return PointOption.point(Integer.parseInt(coordinatesList[0]), Integer.parseInt(coordinatesList[1]));
     }
 
-    private boolean swipe(PointOption from, PointOption to) {
-        TouchAction action = new TouchAction(getAndroidHelper().driver());
+    protected boolean swipe(PointOption from, PointOption to) {
+        TouchAction action = new TouchAction(getDriver());
         action.longPress(from).moveTo(to).release().perform();
         return true;
     }

@@ -1,18 +1,14 @@
 package nl.praegus.fitnesse.slim.fixtures;
 
 import io.appium.java_client.android.AndroidElement;
-import nl.hsac.fitnesse.fixture.util.ReflectionHelper;
 import nl.praegus.fitnesse.slim.util.AndroidHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -20,21 +16,15 @@ import java.util.function.Supplier;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AndroidTestTest {
 
     @Mock
     private AndroidHelper androidHelper;
-    @Mock
-    private ReflectionHelper reflectionHelper;
+
     @Mock
     private AndroidElement element;
 
@@ -151,32 +141,6 @@ public class AndroidTestTest {
 
         assertThat(result).isTrue();
         verify(element, times(1)).click();
-    }
-
-    @Test
-    public void find_and_double_click_with_string() {
-        String place = "locator";
-        when(androidHelper.getElementToClick(place)).thenReturn(element);
-        when(androidHelper.isInteractable(element)).thenReturn(true);
-
-        boolean result = androidTest.doubleClick(place);
-
-        assertThat(result).isTrue();
-        verify(androidHelper, times(1)).doubleClick(element);
-    }
-
-    @Test
-    public void find_and_double_click_in_container() {
-        String container = "container";
-        String place = "locator";
-        when(androidHelper.findByTechnicalSelectorOr(eq(container), any(Supplier.class))).thenReturn(element);
-        when(androidHelper.isInteractable(element)).thenReturn(true);
-        when(androidHelper.doInContext(any(), any())).thenReturn(element);
-
-        boolean result = androidTest.doubleClickIn(place, container);
-
-        assertThat(result).isTrue();
-        verify(androidHelper, times(1)).doubleClick(element);
     }
 
     @Test
@@ -342,116 +306,6 @@ public class AndroidTestTest {
     }
 
     @Test
-    public void press_single_key_then_true_is_returned() {
-        when(androidHelper.getActiveElement()).thenReturn(element);
-
-        boolean result = androidTest.press("control");
-
-        assertThat(result).isTrue();
-        ArgumentCaptor<CharSequence> sentKeys = ArgumentCaptor.forClass(CharSequence.class);
-        verify(element, times(1)).sendKeys(sentKeys.capture());
-
-        assertThat(sentKeys.getValue().charAt(0)).isEqualTo('\uE009');
-    }
-
-    @Test
-    public void press_double_key_then_true_is_returned() {
-        when(androidHelper.getActiveElement()).thenReturn(element);
-
-        boolean result = androidTest.press("control + v");
-
-        assertThat(result).isTrue();
-        ArgumentCaptor<CharSequence> sentKeys = ArgumentCaptor.forClass(CharSequence.class);
-        verify(element, times(1)).sendKeys(sentKeys.capture());
-
-        assertThat(sentKeys.getValue().charAt(0)).isEqualTo('\uE009');
-        assertThat(sentKeys.getValue().charAt(1)).isEqualTo('v');
-    }
-
-    @Test
-    public void press_command_then_true_is_returned() {
-        when(androidHelper.getActiveElement()).thenReturn(element);
-
-        androidTest.setSendCommandForControlOnMacTo(true);
-        boolean result = androidTest.press("control");
-
-        assertThat(result).isTrue();
-        verify(androidHelper, times(1)).getControlOrCommand();
-    }
-
-    @Test
-    public void when_escape_is_successfully_pressed_true_is_returned() {
-        when(androidHelper.getActiveElement()).thenReturn(element);
-
-        boolean result = androidTest.pressEsc();
-
-        assertThat(result).isTrue();
-        ArgumentCaptor<CharSequence> sendKeys = ArgumentCaptor.forClass(CharSequence.class);
-        verify(element, times(1)).sendKeys(sendKeys.capture());
-        assertThat(sendKeys.getValue().charAt(0)).isEqualTo('\ue00c');
-    }
-
-    @Test
-    public void when_enter_is_successfully_pressed_true_is_returned() {
-        when(androidHelper.getActiveElement()).thenReturn(element);
-
-        boolean result = androidTest.pressEnter();
-
-        assertThat(result).isTrue();
-        ArgumentCaptor<CharSequence> sendKeys = ArgumentCaptor.forClass(CharSequence.class);
-        verify(element, times(1)).sendKeys(sendKeys.capture());
-        assertThat(sendKeys.getValue().charAt(0)).isEqualTo('\ue007');
-    }
-
-    @Test
-    public void when_tab_is_successfully_pressed_true_is_returned() {
-        when(androidHelper.getActiveElement()).thenReturn(element);
-
-        boolean result = androidTest.pressTab();
-
-        assertThat(result).isTrue();
-        ArgumentCaptor<CharSequence> sendKeys = ArgumentCaptor.forClass(CharSequence.class);
-        verify(element, times(1)).sendKeys(sendKeys.capture());
-        assertThat(sendKeys.getValue().charAt(0)).isEqualTo('\ue004');
-    }
-
-    @Test
-    public void when_get_element_to_send_value_is_used_successfully_then_return_element() {
-        String place = "place";
-        when(androidHelper.getElement(place)).thenReturn(element);
-
-        AndroidElement result = androidTest.getElementToSendValue(place);
-
-        assertThat(result).isEqualTo(element).isNotNull();
-    }
-
-    @Test
-    public void when_enter_as_date_is_used_successfully_then_return_true() {
-        String date = "date";
-        String place = "place";
-        when(androidHelper.getElement(place)).thenReturn(element);
-        when(androidHelper.isInteractable(element)).thenReturn(true);
-
-        boolean result = androidTest.enterDateAs(date, place);
-
-        assertThat(result).isTrue();
-        verify(androidHelper, times(1)).fillDateInput(element, date);
-    }
-
-    @Test
-    public void when_enter_as_date_with_non_interactable_element_failed_then_false_is_returned() {
-        String date = "date";
-        String place = "place";
-        when(androidHelper.getElement(place)).thenReturn(element);
-        when(androidHelper.isInteractable(element)).thenReturn(false);
-
-        boolean result = androidTest.enterDateAs(date, place);
-
-        assertThat(result).isFalse();
-        verify(androidHelper, times(0)).fillDateInput(element, date);
-    }
-
-    @Test
     public void when_the_values_of_a_non_existing_element_are_retreived_an_empty_list_is_returned() {
         String container = "container";
         String place = "place";
@@ -602,68 +456,6 @@ public class AndroidTestTest {
     }
 
     @Test
-    public void when_switch_to_parent_frame_is_successfully_used_the_function_is_used() {
-
-        androidTest.switchToParentFrame();
-
-        verify(androidHelper, times(1)).switchToParentFrame();
-    }
-
-    @Test
-    public void when_switch_to_frame_is_successfully_used_true_is_returned() {
-        String selector = "selector";
-
-        when(androidHelper.getElement(selector)).thenReturn(element);
-
-        boolean result = androidTest.switchToFrame(selector);
-
-        assertThat(result).isTrue();
-        verify(androidHelper, times(1)).switchToFrame(any());
-    }
-
-    @Test
-    public void when_switch_to_frame_is_not_successfully_used_false_is_returned() {
-        String selector = "selector";
-
-        when(androidHelper.getElement(selector)).thenReturn(null);
-
-        boolean result = androidTest.switchToFrame(selector);
-
-        assertThat(result).isFalse();
-        verify(androidHelper, times(0)).switchToFrame(any());
-        verify(androidHelper, times(1)).getElement(selector);
-    }
-
-    @Test
-    public void when_switch_to_default_context_is_successfully_used_the_function_is_used() {
-
-        androidTest.switchToDefaultContent();
-
-        verify(androidHelper, times(1)).switchToDefaultContent();
-        verify(androidHelper, times(1)).setCurrentContext(null);
-    }
-
-    @Test
-    public void when_on_alert_handled_is_successfully_used_the_function_is_used() {
-        androidTest.onAlertHandled(true);
-
-        verify(androidHelper, times(1)).resetFrameDepthOnAlertError();
-    }
-
-    @Test
-    public void when_wait_for_to_contain_is_successfully_used_true_is_returned() {
-        String place = "place";
-        String text = "text";
-        when(androidHelper.getElement(place)).thenReturn(element);
-        when(element.getText()).thenReturn(text);
-
-        boolean result = androidTest.waitForToContain(place, text);
-
-        assertThat(result).isTrue();
-        verify(androidHelper, times(1)).getElement(place);
-    }
-
-    @Test
     public void when_set_search_context_to_is_successfully_used_true_is_returned() {
         String container = "container";
 
@@ -673,32 +465,6 @@ public class AndroidTestTest {
 
         assertThat(result).isTrue();
         verify(androidHelper, times(1)).setCurrentContext(element);
-    }
-
-    @Test
-    public void when_get_page_title_is_successfully_used_true_is_returned() {
-        String pageName = "pageName";
-
-        when(androidHelper.getPageTitle()).thenReturn(pageName);
-
-        boolean result = androidTest.waitForPage(pageName);
-
-        assertThat(result).isTrue();
-        verify(androidHelper, times(1)).getPageTitle();
-    }
-
-    @Test
-    public void when_wait_for_tag_with_text_is_() {
-        String tagName = "tagName";
-        String expectedText = "expectedText";
-        androidTest.secondsBeforeTimeout(5);
-
-        when(androidHelper.waitUntil(eq(5), any(ExpectedCondition.class))).thenReturn(true);
-
-        boolean result = androidTest.waitForTagWithText(tagName, expectedText);
-
-        assertThat(result).isTrue();
-        verify(androidHelper, times(1)).waitUntil(eq(5), any(ExpectedCondition.class));
     }
 
     @Test
@@ -756,7 +522,7 @@ public class AndroidTestTest {
     }
 
     @Test
-    public void is_visible_on_page(){
+    public void is_visible_on_page() {
         when(androidHelper.findByTechnicalSelectorOr(eq("place"), any(Supplier.class))).thenReturn(element);
         when(androidHelper.checkVisible(any(), anyBoolean())).thenReturn(true);
 

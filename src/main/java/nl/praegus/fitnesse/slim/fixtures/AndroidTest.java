@@ -24,7 +24,7 @@ import nl.hsac.fitnesse.fixture.util.selenium.by.ListItemBy;
 import nl.hsac.fitnesse.fixture.util.selenium.by.OptionBy;
 import nl.hsac.fitnesse.fixture.util.selenium.by.XPathBy;
 import nl.hsac.fitnesse.slim.interaction.ExceptionHelper;
-import nl.praegus.fitnesse.slim.util.AppiumHelper;
+import nl.praegus.fitnesse.slim.util.AndroidHelper;
 import nl.praegus.fitnesse.slim.util.KeyMapping;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -57,7 +57,7 @@ import static nl.hsac.fitnesse.fixture.util.selenium.SelectHelper.isSelect;
  */
 public class AndroidTest extends SlimFixture {
     private final List<String> currentSearchContextPath = new ArrayList<>();
-    private AppiumHelper<AndroidElement> appiumHelper;
+    private AndroidHelper appiumHelper;
     private int waitAfterScroll = 500;
     private int minStaleContextRefreshCount = 5;
     private ReflectionHelper reflectionHelper;
@@ -72,14 +72,14 @@ public class AndroidTest extends SlimFixture {
     private boolean abortOnException;
 
     public AndroidTest() {
-        this.appiumHelper = (AppiumHelper<AndroidElement>) getEnvironment().getSeleniumHelper();
+        this.appiumHelper = (AndroidHelper) getEnvironment().getSeleniumHelper();
         this.reflectionHelper = getEnvironment().getReflectionHelper();
         secondsBeforeTimeout(getEnvironment().getSeleniumDriverManager().getDefaultTimeoutSeconds());
         setImplicitFindInFramesTo(false);
     }
 
     public AndroidTest(int secondsBeforeTimeout) {
-        this.appiumHelper = (AppiumHelper<AndroidElement>) getEnvironment().getSeleniumHelper();
+        this.appiumHelper = (AndroidHelper) getEnvironment().getSeleniumHelper();
         this.reflectionHelper = getEnvironment().getReflectionHelper();
         secondsBeforeTimeout(secondsBeforeTimeout);
         setImplicitFindInFramesTo(false);
@@ -1724,7 +1724,7 @@ public class AndroidTest extends SlimFixture {
     /**
      * @return helper to use.
      */
-    protected AppiumHelper<AndroidElement> getAppiumHelper() {
+    protected AndroidHelper getAppiumHelper() {
         return appiumHelper;
     }
 
@@ -1733,7 +1733,7 @@ public class AndroidTest extends SlimFixture {
      *
      * @param helper helper to use.
      */
-    protected void setAppiumHelper(AppiumHelper<AndroidElement> helper) {
+    protected void setAppiumHelper(AndroidHelper helper) {
         appiumHelper = helper;
     }
 

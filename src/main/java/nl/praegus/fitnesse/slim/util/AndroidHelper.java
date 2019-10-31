@@ -27,6 +27,14 @@ public class AndroidHelper extends SeleniumHelper<AndroidElement> {
     private static final Function<String, By> ACCESSIBILITY_BY = byIfStartsWith("accessibility", MobileBy::AccessibilityId);
     private AndroidScrollHelper scrollHelper;
 
+    public AndroidHelper() {
+        setScrollHelper(new AndroidScrollHelper(this));
+    }
+
+    public AndroidHelper(AndroidScrollHelper scrollHelper) {
+        setScrollHelper(scrollHelper);
+    }
+
     @Override
     public AndroidDriver<AndroidElement> driver() {
         return (AndroidDriver<AndroidElement>) super.driver();
@@ -34,9 +42,7 @@ public class AndroidHelper extends SeleniumHelper<AndroidElement> {
 
     @Override
     public By placeToBy(String place) {
-        return firstNonNull(place,
-                super::placeToBy,
-                ACCESSIBILITY_BY);
+        return firstNonNull(place, super::placeToBy, ACCESSIBILITY_BY);
     }
 
     /**
@@ -139,14 +145,6 @@ public class AndroidHelper extends SeleniumHelper<AndroidElement> {
 
     public TouchAction getTouchAction() {
         return new TouchAction(driver());
-    }
-
-    public AndroidHelper() {
-        setScrollHelper(new AndroidScrollHelper(this));
-    }
-
-    public AndroidHelper(AndroidScrollHelper scrollHelper) {
-        setScrollHelper(scrollHelper);
     }
 
     protected By getElementBy(String place) {

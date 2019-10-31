@@ -102,7 +102,7 @@ public class AndroidTestTest {
 
     @Test
     public void clear_doesnt_work_because_element_is_null() {
-        boolean result = androidTest.clear((WebElement) null);
+        boolean result = androidTest.clear((AndroidElement) null);
 
         assertThat(result).isFalse();
     }

@@ -23,8 +23,7 @@ import static nl.hsac.fitnesse.fixture.util.selenium.by.TechnicalSelectorBy.byIf
 /**
  * Specialized helper to deal with appium's Android web getDriver.
  */
-public class AndroidHelper extends SeleniumHelper<AndroidElement> { //AppiumHelper<AndroidElement, AndroidDriver<AndroidElement>> {
-    private static final Function<String, By> ANDROID_UI_AUTOMATOR_BY = byIfStartsWith("uiAutomator", MobileBy::AndroidUIAutomator);
+public class AndroidHelper extends SeleniumHelper<AndroidElement> {
     private static final Function<String, By> ACCESSIBILITY_BY = byIfStartsWith("accessibility", MobileBy::AccessibilityId);
     private AndroidScrollHelper scrollHelper;
 

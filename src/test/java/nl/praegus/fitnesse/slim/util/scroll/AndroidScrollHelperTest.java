@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ScrollHelperTest {
+public class AndroidScrollHelperTest {
 
     @Mock
     private AndroidHelper helper;

@@ -57,7 +57,7 @@ import static nl.hsac.fitnesse.fixture.util.selenium.SelectHelper.isSelect;
  */
 public class AndroidTest extends SlimFixture {
     private final List<String> currentSearchContextPath = new ArrayList<>();
-    private AndroidHelper appiumHelper;
+    private AndroidHelper androidHelper;
     private int waitAfterScroll = 500;
     private int minStaleContextRefreshCount = 5;
     private ReflectionHelper reflectionHelper;
@@ -72,21 +72,26 @@ public class AndroidTest extends SlimFixture {
     private boolean abortOnException;
 
     public AndroidTest() {
-        this.appiumHelper = (AndroidHelper) getEnvironment().getSeleniumHelper();
+        this.androidHelper = (AndroidHelper) getEnvironment().getSeleniumHelper();
         this.reflectionHelper = getEnvironment().getReflectionHelper();
         secondsBeforeTimeout(getEnvironment().getSeleniumDriverManager().getDefaultTimeoutSeconds());
         setImplicitFindInFramesTo(false);
     }
 
     public AndroidTest(int secondsBeforeTimeout) {
-        this.appiumHelper = (AndroidHelper) getEnvironment().getSeleniumHelper();
+        this.androidHelper = (AndroidHelper) getEnvironment().getSeleniumHelper();
         this.reflectionHelper = getEnvironment().getReflectionHelper();
         secondsBeforeTimeout(secondsBeforeTimeout);
         setImplicitFindInFramesTo(false);
     }
 
+    public AndroidTest(AndroidHelper androidHelper, ReflectionHelper reflectionHelper) {
+        this.androidHelper = androidHelper;
+        this.reflectionHelper = reflectionHelper;
+    }
+
     public boolean pressKey(String key) {
-        getAppiumHelper().driver().pressKey(new KeyEvent(KeyMapping.getKey(key)));
+        getAndroidHelper().driver().pressKey(new KeyEvent(KeyMapping.getKey(key)));
         return true;
     }
 
@@ -106,7 +111,7 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected boolean tap(String place, String container) {
-        TouchAction touchAction = new TouchAction(getAppiumHelper().driver());
+        TouchAction touchAction = new TouchAction(getAndroidHelper().driver());
         WebElement element = getElementToClick(cleanupValue(place), container);
         return tapElement(touchAction, element);
     }
@@ -128,7 +133,7 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected boolean swipe(PointOption from, PointOption to) {
-        TouchAction action = new TouchAction(getAppiumHelper().driver());
+        TouchAction action = new TouchAction(getAndroidHelper().driver());
         action.longPress(from).moveTo(to).release().perform();
         return true;
     }
@@ -170,7 +175,7 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected AndroidDriver<AndroidElement> getDriver() {
-        return appiumHelper.driver();
+        return androidHelper.driver();
     }
 
     protected boolean clear(WebElement element) {
@@ -254,14 +259,14 @@ public class AndroidTest extends SlimFixture {
     protected void onAlertHandled(boolean accepted) {
         // if we were looking in nested frames, we could not go back to original frame
         // because of the alert. Ensure we do so now the alert is handled.
-        appiumHelper.resetFrameDepthOnAlertError();
+        androidHelper.resetFrameDepthOnAlertError();
     }
 
     /**
      * Activates main/top-level iframe (i.e. makes it the current frame).
      */
     public void switchToDefaultContent() {
-        appiumHelper.switchToDefaultContent();
+        androidHelper.switchToDefaultContent();
         clearSearchContext();
     }
 
@@ -273,9 +278,9 @@ public class AndroidTest extends SlimFixture {
      */
     public boolean switchToFrame(String technicalSelector) {
         boolean result = false;
-        AndroidElement iframe = appiumHelper.getElement(technicalSelector);
+        AndroidElement iframe = androidHelper.getElement(technicalSelector);
         if (iframe != null) {
-            appiumHelper.switchToFrame(iframe);
+            androidHelper.switchToFrame(iframe);
             result = true;
         }
         return result;
@@ -286,11 +291,11 @@ public class AndroidTest extends SlimFixture {
      * Does nothing if when current frame is the main/top-level one.
      */
     public void switchToParentFrame() {
-        appiumHelper.switchToParentFrame();
+        androidHelper.switchToParentFrame();
     }
 
     public String pageTitle() {
-        return appiumHelper.getPageTitle();
+        return androidHelper.getPageTitle();
     }
 
     /**
@@ -353,7 +358,7 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected boolean enter(WebElement element, String value, boolean shouldClear) {
-        boolean result = element != null && appiumHelper.isInteractable(element);
+        boolean result = element != null && androidHelper.isInteractable(element);
         if (result) {
             if (isSelect(element)) {
                 result = clickSelectOption(element, value);
@@ -372,9 +377,9 @@ public class AndroidTest extends SlimFixture {
     @WaitUntil
     public boolean enterDateAs(String date, String place) {
         WebElement element = getElementToSendValue(place);
-        boolean result = element != null && appiumHelper.isInteractable(element);
+        boolean result = element != null && androidHelper.isInteractable(element);
         if (result) {
-            appiumHelper.fillDateInput(element, date);
+            androidHelper.fillDateInput(element, date);
         }
         return result;
     }
@@ -451,7 +456,7 @@ public class AndroidTest extends SlimFixture {
         try {
             s = Keys.valueOf(key.toUpperCase());
             if (Keys.CONTROL.equals(s) && sendCommandForControlOnMac) {
-                s = appiumHelper.getControlOrCommand();
+                s = androidHelper.getControlOrCommand();
             }
         } catch (IllegalArgumentException e) {
             s = key;
@@ -467,7 +472,7 @@ public class AndroidTest extends SlimFixture {
      */
     protected boolean sendKeysToActiveElement(CharSequence... keys) {
         boolean result = false;
-        WebElement element = appiumHelper.getActiveElement();
+        WebElement element = androidHelper.getActiveElement();
         if (element != null) {
             element.sendKeys(keys);
             result = true;
@@ -490,7 +495,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil
     public boolean selectAs(String value, String place) {
-        WebElement element = appiumHelper.getElement(place);
+        WebElement element = androidHelper.getElement(place);
         Select select = new Select(element);
         if (select.isMultiple()) {
             select.deselectAll();
@@ -505,7 +510,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil
     public boolean selectFor(String value, String place) {
-        WebElement element = appiumHelper.getElement(place);
+        WebElement element = androidHelper.getElement(place);
         return clickSelectOption(element, value);
     }
 
@@ -516,7 +521,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil
     public boolean enterForHidden(String value, String idOrName) {
-        return appiumHelper.setHiddenInputValue(idOrName, value);
+        return androidHelper.setHiddenInputValue(idOrName, value);
     }
 
     protected boolean clickSelectOption(WebElement element, String optionValue) {
@@ -535,7 +540,7 @@ public class AndroidTest extends SlimFixture {
             // we scroll containing select into view (not the option)
             // based on behavior for option in https://www.w3.org/TR/webdriver/#element-click
             scrollIfNotOnScreen(element);
-            if (appiumHelper.isInteractable(option)) {
+            if (androidHelper.isInteractable(option)) {
                 option.click();
                 result = true;
             }
@@ -580,7 +585,7 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected boolean doubleClick(WebElement element) {
-        return doIfInteractable(element, () -> appiumHelper.doubleClick(element));
+        return doIfInteractable(element, () -> androidHelper.doubleClick(element));
     }
 
     public void setSendCommandForControlOnMacTo(boolean sendCommand) {
@@ -592,18 +597,18 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected Keys controlKey() {
-        return sendCommandForControlOnMac ? appiumHelper.getControlOrCommand() : Keys.CONTROL;
+        return sendCommandForControlOnMac ? androidHelper.getControlOrCommand() : Keys.CONTROL;
     }
 
     @WaitUntil
     public boolean dragAndDropTo(String source, String destination) {
-        WebElement sourceElement = appiumHelper.getElementToClick(cleanupValue(source));
-        WebElement destinationElement = appiumHelper.getElementToClick(cleanupValue(destination));
+        WebElement sourceElement = androidHelper.getElementToClick(cleanupValue(source));
+        WebElement destinationElement = androidHelper.getElementToClick(cleanupValue(destination));
 
         if ((sourceElement != null) && (destinationElement != null)) {
             scrollIfNotOnScreen(sourceElement);
-            if (appiumHelper.isInteractable(sourceElement) && destinationElement.isDisplayed()) {
-                appiumHelper.dragAndDrop(sourceElement, destinationElement);
+            if (androidHelper.isInteractable(sourceElement) && destinationElement.isDisplayed()) {
+                androidHelper.dragAndDrop(sourceElement, destinationElement);
                 return true;
             }
         }
@@ -611,7 +616,7 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected AndroidElement getElementToClick(String place, String container) {
-        return doInContainer(container, () -> appiumHelper.getElementToClick(place));
+        return doInContainer(container, () -> androidHelper.getElementToClick(place));
     }
 
     /**
@@ -623,7 +628,7 @@ public class AndroidTest extends SlimFixture {
      * @return first hit of place, technical selector or result of first supplier that provided result.
      */
     protected AndroidElement findFirstInContainer(String container, String place, Supplier<? extends AndroidElement>... suppliers) {
-        return doInContainer(container, () -> appiumHelper.findByTechnicalSelectorOr(place, suppliers));
+        return doInContainer(container, () -> androidHelper.findByTechnicalSelectorOr(place, suppliers));
     }
 
     protected <R> R doInContainer(String container, Supplier<R> action) {
@@ -641,7 +646,7 @@ public class AndroidTest extends SlimFixture {
             try {
                 AndroidElement containerElement = containerSupplier.get();
                 if (containerElement != null) {
-                    result = appiumHelper.doInContext(containerElement, action);
+                    result = androidHelper.doInContext(containerElement, action);
                 }
                 retryCount = 0;
             } catch (StaleContextException e) {
@@ -662,7 +667,7 @@ public class AndroidTest extends SlimFixture {
         boolean result = false;
         if (containerElement != null) {
             getCurrentSearchContextPath().add(container);
-            appiumHelper.setCurrentContext(containerElement);
+            androidHelper.setCurrentContext(containerElement);
             result = true;
         }
         return result;
@@ -670,11 +675,11 @@ public class AndroidTest extends SlimFixture {
 
     public void clearSearchContext() {
         getCurrentSearchContextPath().clear();
-        appiumHelper.setCurrentContext(null);
+        androidHelper.setCurrentContext(null);
     }
 
     protected AndroidElement getContainerElement(String container) {
-        return findByTechnicalSelectorOr(container, container1 -> appiumHelper.getElement(container1));
+        return findByTechnicalSelectorOr(container, container1 -> androidHelper.getElement(container1));
     }
 
     protected boolean clickElement(WebElement element) {
@@ -685,7 +690,7 @@ public class AndroidTest extends SlimFixture {
         boolean result = false;
         if (element != null) {
             scrollIfNotOnScreen(element);
-            if (appiumHelper.isInteractable(element)) {
+            if (androidHelper.isInteractable(element)) {
                 action.run();
                 result = true;
             }
@@ -756,7 +761,7 @@ public class AndroidTest extends SlimFixture {
     public boolean waitForClass(String cssClassName) {
         boolean ok = false;
 
-        WebElement element = appiumHelper.findElement(By.className(cssClassName));
+        WebElement element = androidHelper.findElement(By.className(cssClassName));
         if (element != null) {
             ok = true;
         }
@@ -851,7 +856,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil
     public String targetOfLink(String place) {
-        WebElement linkElement = appiumHelper.getLink(place);
+        WebElement linkElement = androidHelper.getLink(place);
         return getLinkTarget(linkElement);
     }
 
@@ -882,7 +887,7 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected String valueFor(By by) {
-        WebElement element = appiumHelper.findElement(by);
+        WebElement element = androidHelper.findElement(by);
         return valueFor(element);
     }
 
@@ -992,10 +997,10 @@ public class AndroidTest extends SlimFixture {
     @WaitUntil(TimeoutPolicy.RETURN_NULL)
     public Integer numberFor(String place) {
         Integer number = null;
-        WebElement element = appiumHelper.findElement(ListItemBy.numbered(place));
+        WebElement element = androidHelper.findElement(ListItemBy.numbered(place));
         if (element != null) {
             scrollIfNotOnScreen(element);
-            number = appiumHelper.getNumberFor(element);
+            number = androidHelper.getNumberFor(element);
         }
         return number;
     }
@@ -1008,10 +1013,10 @@ public class AndroidTest extends SlimFixture {
     @WaitUntil(TimeoutPolicy.RETURN_NULL)
     public List<String> availableOptionsFor(String place) {
         ArrayList<String> result = null;
-        WebElement element = appiumHelper.getElement(place);
+        WebElement element = androidHelper.getElement(place);
         if (element != null) {
             scrollIfNotOnScreen(element);
-            result = appiumHelper.getAvailableOptions(element);
+            result = androidHelper.getAvailableOptions(element);
         }
         return result;
     }
@@ -1038,7 +1043,7 @@ public class AndroidTest extends SlimFixture {
     @WaitUntil
     public boolean enterAsInRowWhereIs(String value, String requestedColumnName, String selectOnColumn, String selectOnValue) {
         By cellBy = GridBy.columnInRowWhereIs(requestedColumnName, selectOnColumn, selectOnValue);
-        WebElement element = appiumHelper.findElement(cellBy);
+        WebElement element = androidHelper.findElement(cellBy);
         return enter(element, value, true);
     }
 
@@ -1077,7 +1082,7 @@ public class AndroidTest extends SlimFixture {
 
     @WaitUntil(TimeoutPolicy.RETURN_FALSE)
     public boolean rowExistsWhereIs(String selectOnColumn, String selectOnValue) {
-        return appiumHelper.findElement(GridBy.rowWhereIs(selectOnColumn, selectOnValue)) != null;
+        return androidHelper.findElement(GridBy.rowWhereIs(selectOnColumn, selectOnValue)) != null;
     }
 
     @WaitUntil
@@ -1093,11 +1098,11 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected boolean clickInRow(By rowBy, String place) {
-        return Boolean.TRUE.equals(doInContainer(() -> appiumHelper.findElement(rowBy), () -> click(place)));
+        return Boolean.TRUE.equals(doInContainer(() -> androidHelper.findElement(rowBy), () -> click(place)));
     }
 
     protected AndroidElement getElement(String place, String container) {
-        return doInContainer(container, () -> appiumHelper.getElement(place));
+        return doInContainer(container, () -> androidHelper.getElement(place));
     }
 
     protected String getTextByClassName(String className) {
@@ -1106,19 +1111,19 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected AndroidElement findByClassName(String className) {
-        return appiumHelper.findElement(By.className(className));
+        return androidHelper.findElement(By.className(className));
     }
 
     protected AndroidElement findByCss(String cssPattern, String... params) {
-        return appiumHelper.findElement(appiumHelper.byCss(cssPattern, params));
+        return androidHelper.findElement(androidHelper.byCss(cssPattern, params));
     }
 
     protected List<AndroidElement> findAllByXPath(String xpathPattern, String... params) {
-        return findElements(appiumHelper.byXpath(xpathPattern, params));
+        return findElements(androidHelper.byXpath(xpathPattern, params));
     }
 
     protected List<AndroidElement> findAllByCss(String cssPattern, String... params) {
-        return findElements(appiumHelper.byCss(cssPattern, params));
+        return findElements(androidHelper.byCss(cssPattern, params));
     }
 
     public void waitMilliSecondAfterScroll(int msToWait) {
@@ -1132,19 +1137,19 @@ public class AndroidTest extends SlimFixture {
     protected String getElementText(WebElement element) {
         if (element != null) {
             scrollIfNotOnScreen(element);
-            return appiumHelper.getText(element);
+            return androidHelper.getText(element);
         }
         return null;
     }
 
     public boolean scrollUp() {
-        boolean result = appiumHelper.scrollUpOrDown(true);
+        boolean result = androidHelper.scrollUpOrDown(true);
         waitAfterScroll(waitAfterScroll);
         return result;
     }
 
     public boolean scrollDown() {
-        boolean result = appiumHelper.scrollUpOrDown(false);
+        boolean result = androidHelper.scrollUpOrDown(false);
         waitAfterScroll(waitAfterScroll);
         return result;
     }
@@ -1172,7 +1177,7 @@ public class AndroidTest extends SlimFixture {
         }
         int counter = 0;
         while (counter < 5) {
-            appiumHelper.scrollUpOrDown(up);
+            androidHelper.scrollUpOrDown(up);
             waitAfterScroll(waitAfterScroll);
             counter = counter + 1;
             isVisible = isVisibleOnPage(place);
@@ -1189,7 +1194,7 @@ public class AndroidTest extends SlimFixture {
      * @param element element to scroll to.
      */
     protected void scrollTo(WebElement element) {
-        appiumHelper.scrollTo(element);
+        androidHelper.scrollTo(element);
         waitAfterScroll(waitAfterScroll);
     }
 
@@ -1240,7 +1245,7 @@ public class AndroidTest extends SlimFixture {
         if (element != null) {
             if ("label".equalsIgnoreCase(element.getTagName())) {
                 // for labels we want to know whether their target is enabled, not the label itself
-                AndroidElement labelTarget = appiumHelper.getLabelledElement(element);
+                AndroidElement labelTarget = androidHelper.getLabelledElement(element);
                 if (labelTarget != null) {
                     element = labelTarget;
                 }
@@ -1344,7 +1349,7 @@ public class AndroidTest extends SlimFixture {
 
     protected boolean isVisibleImpl(String place, String container, boolean checkOnScreen) {
         WebElement element = getElementToCheckVisibility(place, container);
-        return appiumHelper.checkVisible(element, checkOnScreen);
+        return androidHelper.checkVisible(element, checkOnScreen);
     }
 
     public int numberOfTimesIsVisible(String text) {
@@ -1369,15 +1374,15 @@ public class AndroidTest extends SlimFixture {
         if (implicitFindInFrames) {
             // sum over iframes
             AtomicInteger count = new AtomicInteger();
-            new AllFramesDecorator<Integer>(appiumHelper).apply(() -> count.addAndGet(appiumHelper.countVisibleOccurrences(text, checkOnScreen)));
+            new AllFramesDecorator<Integer>(androidHelper).apply(() -> count.addAndGet(androidHelper.countVisibleOccurrences(text, checkOnScreen)));
             return count.get();
         } else {
-            return appiumHelper.countVisibleOccurrences(text, checkOnScreen);
+            return androidHelper.countVisibleOccurrences(text, checkOnScreen);
         }
     }
 
     protected AndroidElement getElementToCheckVisibility(String place, String container) {
-        return doInContainer(container, () -> findByTechnicalSelectorOr(place, place1 -> appiumHelper.getElementToCheckVisibility(place1)));
+        return doInContainer(container, () -> findByTechnicalSelectorOr(place, place1 -> androidHelper.getElementToCheckVisibility(place1)));
     }
 
     @WaitUntil
@@ -1395,7 +1400,7 @@ public class AndroidTest extends SlimFixture {
         if (element != null) {
             scrollIfNotOnScreen(element);
             if (element.isDisplayed()) {
-                appiumHelper.hoverOver(element);
+                androidHelper.hoverOver(element);
                 return true;
             }
         }
@@ -1409,7 +1414,7 @@ public class AndroidTest extends SlimFixture {
         secondsBeforeTimeout = timeout;
         secondsBeforePageLoadTimeout(timeout);
         int timeoutInMs = timeout * 1000;
-        appiumHelper.setScriptWait(timeoutInMs);
+        androidHelper.setScriptWait(timeoutInMs);
     }
 
     /**
@@ -1425,7 +1430,7 @@ public class AndroidTest extends SlimFixture {
     public void secondsBeforePageLoadTimeout(int timeout) {
         secondsBeforePageLoadTimeout = timeout;
         int timeoutInMs = timeout * 1000;
-        appiumHelper.setPageLoadWait(timeoutInMs);
+        androidHelper.setPageLoadWait(timeoutInMs);
     }
 
     /**
@@ -1457,11 +1462,11 @@ public class AndroidTest extends SlimFixture {
      * @return (escaped) xml content of current page.
      */
     public String pageSource() {
-        return getEnvironment().getHtml(appiumHelper.getSourceXml());
+        return getEnvironment().getHtml(androidHelper.getSourceXml());
     }
 
     protected String savePageSource(String fileName, String linkText) {
-        PageSourceSaver saver = appiumHelper.getPageSourceSaver(pageSourceBase);
+        PageSourceSaver saver = androidHelper.getPageSourceSaver(pageSourceBase);
         // make href to file
         String url = saver.savePageSource(fileName);
         return String.format("<a href=\"%s\" target=\"_blank\">%s</a>", url, linkText);
@@ -1502,17 +1507,17 @@ public class AndroidTest extends SlimFixture {
 
     private String createScreenshot(String basename) {
         String name = getScreenshotBasename(basename);
-        return appiumHelper.takeScreenshot(name);
+        return androidHelper.takeScreenshot(name);
     }
 
     private String createScreenshot(String basename, Throwable t) {
         String screenshotFile;
-        byte[] screenshotInException = appiumHelper.findScreenshot(t);
+        byte[] screenshotInException = androidHelper.findScreenshot(t);
         if (screenshotInException == null || screenshotInException.length == 0) {
             screenshotFile = createScreenshot(basename);
         } else {
             String name = getScreenshotBasename(basename);
-            screenshotFile = appiumHelper.writeScreenshot(name, screenshotInException);
+            screenshotFile = androidHelper.writeScreenshot(name, screenshotInException);
         }
         return screenshotFile;
     }
@@ -1577,7 +1582,7 @@ public class AndroidTest extends SlimFixture {
         try {
             // last attempt to ensure condition has not been met
             // this to prevent messages that show no problem
-            lastAttemptResult = condition.apply(appiumHelper.driver());
+            lastAttemptResult = condition.apply(androidHelper.driver());
         } catch (Exception t) {
             // ignore
         }
@@ -1605,7 +1610,7 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected <T> T waitUntilImpl(ExpectedCondition<T> condition) {
-        return appiumHelper.waitUntil(secondsBeforeTimeout, condition);
+        return androidHelper.waitUntil(secondsBeforeTimeout, condition);
     }
 
     public boolean refreshSearchContext() {
@@ -1621,7 +1626,7 @@ public class AndroidTest extends SlimFixture {
                 setSearchContextTo(container);
             } catch (RuntimeException se) {
                 if (maxRetries < 1 || !(se instanceof WebDriverException)
-                        || !appiumHelper.isStaleElementException((WebDriverException) se)) {
+                        || !androidHelper.isStaleElementException((WebDriverException) se)) {
                     // not the entire context was refreshed, clear it to prevent an 'intermediate' search context
                     clearSearchContext();
                     throw new SlimFixtureException("Search context is 'stale' and could not be refreshed. Context was: " + fullPath
@@ -1724,8 +1729,8 @@ public class AndroidTest extends SlimFixture {
     /**
      * @return helper to use.
      */
-    protected AndroidHelper getAppiumHelper() {
-        return appiumHelper;
+    protected AndroidHelper getAndroidHelper() {
+        return androidHelper;
     }
 
     /**
@@ -1733,12 +1738,12 @@ public class AndroidTest extends SlimFixture {
      *
      * @param helper helper to use.
      */
-    protected void setAppiumHelper(AndroidHelper helper) {
-        appiumHelper = helper;
+    protected void setAndroidHelper(AndroidHelper helper) {
+        androidHelper = helper;
     }
 
     protected WebElement getElementToDownload(String place) {
-        SeleniumHelper<AndroidElement> helper = appiumHelper;
+        SeleniumHelper<AndroidElement> helper = androidHelper;
         return helper.findByTechnicalSelectorOr(place,
                 () -> helper.getLink(place),
                 () -> helper.findElement(AltBy.exact(place)),
@@ -1746,11 +1751,11 @@ public class AndroidTest extends SlimFixture {
     }
 
     protected List<AndroidElement> findElements(By by) {
-        return appiumHelper.findElements(by);
+        return androidHelper.findElements(by);
     }
 
     public AndroidElement findByTechnicalSelectorOr(String place, Function<String, ? extends AndroidElement> supplierF) {
-        return appiumHelper.findByTechnicalSelectorOr(place, () -> supplierF.apply(place));
+        return androidHelper.findByTechnicalSelectorOr(place, () -> supplierF.apply(place));
     }
 
     /**
@@ -1840,7 +1845,7 @@ public class AndroidTest extends SlimFixture {
 
     protected <T> ExpectedCondition<T> wrapConditionForFramesIfNeeded(ExpectedCondition<T> condition) {
         if (implicitFindInFrames) {
-            condition = appiumHelper.conditionForAllFrames(condition);
+            condition = androidHelper.conditionForAllFrames(condition);
         }
         return condition;
     }
@@ -1885,7 +1890,7 @@ public class AndroidTest extends SlimFixture {
      */
     @WaitUntil
     public boolean selectAll() {
-        return appiumHelper.selectAll();
+        return androidHelper.selectAll();
     }
 
     /**
@@ -1895,7 +1900,7 @@ public class AndroidTest extends SlimFixture {
      */
     @WaitUntil
     public boolean copy() {
-        return appiumHelper.copy();
+        return androidHelper.copy();
     }
 
     /**
@@ -1906,7 +1911,7 @@ public class AndroidTest extends SlimFixture {
      */
     @WaitUntil
     public boolean cut() {
-        return appiumHelper.cut();
+        return androidHelper.cut();
     }
 
     /**
@@ -1917,14 +1922,14 @@ public class AndroidTest extends SlimFixture {
      */
     @WaitUntil
     public boolean paste() {
-        return appiumHelper.paste();
+        return androidHelper.paste();
     }
 
     /**
      * @return text currently selected in window, or empty string if no text is selected.
      */
     public String getSelectionText() {
-        return appiumHelper.getSelectionText();
+        return androidHelper.getSelectionText();
     }
 
     /**

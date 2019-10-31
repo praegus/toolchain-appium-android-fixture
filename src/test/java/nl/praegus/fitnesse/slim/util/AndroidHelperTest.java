@@ -1,6 +1,7 @@
 package nl.praegus.fitnesse.slim.util;
 
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.android.AndroidDriver;
 import nl.praegus.fitnesse.slim.util.scroll.AndroidScrollHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.when;
 public class AndroidHelperTest {
 
     @Mock
-    private AppiumDriver webDriver;
+    private AndroidDriver webDriver;
 
     @Mock
     private AndroidScrollHelper scrollHelper;
